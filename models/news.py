@@ -8,6 +8,7 @@ class NewsItem:
     publisher: str
     published_at: str
     url: str
+    full_content: str = ""
 
     def to_dict(self):
         return {
@@ -15,5 +16,6 @@ class NewsItem:
             "snippet": self.snippet,
             "publisher": self.publisher,
             "published_at": self.published_at,
-            "url": self.url
+            "url": self.url,
+            "full_content": self.full_content
         }

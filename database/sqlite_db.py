@@ -21,6 +21,7 @@ class NewsDatabase:
                     publisher TEXT,
                     published_at TEXT,
                     url TEXT UNIQUE,
+                    full_content TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             """)
@@ -32,14 +33,15 @@ class NewsDatabase:
                 cursor = conn.cursor()
                 cursor.execute("""
                     INSERT OR IGNORE INTO news 
-                    (title, snippet, publisher, published_at, url) 
-                    VALUES (?, ?, ?, ?, ?)
+                    (title, snippet, publisher, published_at, url, full_content) 
+                    VALUES (?, ?, ?, ?, ?, ?)
                 """, (
                     news_item.title,
                     news_item.snippet,
                     news_item.publisher,
                     news_item.published_at,
-                    news_item.url
+                    news_item.url,
+                    news_item.full_content
                 ))
                 conn.commit()
                 return cursor.rowcount > 0
