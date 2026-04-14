@@ -9,6 +9,9 @@ class NewsItem:
     published_at: str
     url: str
     full_content: str = ""
+    comment_count: int = 0
+    reaction_count: int = 0
+    reaction_detail: str = "{}" # JSON string or descriptive text
 
     def to_dict(self):
         return {
@@ -17,5 +20,8 @@ class NewsItem:
             "publisher": self.publisher,
             "published_at": self.published_at,
             "url": self.url,
-            "full_content": self.full_content
+            "full_content": self.full_content,
+            "comment_count": self.comment_count,
+            "reaction_count": self.reaction_count,
+            "reaction_detail": self.reaction_detail
         }

@@ -9,23 +9,48 @@ def main():
     crawler = NaverNewsCrawler()
     summarizer = Summarizer()
     
-    print(f"Starting deep crawl and summarization at {time.strftime('%Y-%m-%d %H:%M:%S')}")
-    
-    news_list = crawler.fetch_news()
-    
+    MAX_PAGES = 25
+    TARGET_COUNT = 500
     new_count = 0
-    for news in news_list:
-        # Generate high-quality summary from full content
-        if news.full_content:
-            news.snippet = summarizer.summarize(news.full_content)
+    total_fetched = 0
+    
+    print(f"Starting expanded crawl at {time.strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    for page in range(1, MAX_PAGES + 1):
+        print(f"\n>>> Crawling Page {page}...")
+        news_list, should_stop = crawler.fetch_news(page=page)
         
-        if db.insert_news(news):
-            new_count += 1
-            print(f"[New] {news.publisher}: {news.title}")
-            print(f"      Summary: {news.snippet[:100]}...")
+        if not news_list:
+            print("No more news found on this page.")
+            break
+            
+        for news in news_list:
+            total_fetched += 1
+            # Generate summary
+            if news.full_content:
+                news.snippet = summarizer.summarize(news.full_content)
+            
+            if db.insert_news(news):
+                new_count += 1
+                if new_count % 10 == 0:
+                    print(f"Progress: {new_count} new items saved...")
+            
+            if new_count >= TARGET_COUNT:
+                print(f"Reached target count of {TARGET_COUNT}. Stopping.")
+                should_stop = True
+                break
+        
+        if should_stop:
+            print("Time limit reached or target met. Stopping crawl.")
+            break
+            
+        # Delay between pages
+        time.sleep(1)
     
     print("-" * 30)
-    print(f"Process completed. {new_count} new items summarized and saved.")
+    print(f"Process completed.")
+    print(f"- Total processed: {total_fetched}")
+    print(f"- Unique new items saved: {new_count}")
     
     # Print some stats from DB
     all_news = db.get_all_news()
