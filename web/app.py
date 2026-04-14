@@ -49,7 +49,7 @@ def monitor_published_issues():
 
 # Initialize and start scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(crawl_job, 'interval', hours=1)
+scheduler.add_job(crawl_job, 'interval', minutes=30)
 scheduler.add_job(monitor_published_issues, 'interval', hours=2)
 
 @app.on_event("startup")
