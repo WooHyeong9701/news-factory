@@ -11,7 +11,8 @@ class NewsItem:
     full_content: str = ""
     comment_count: int = 0
     reaction_count: int = 0
-    reaction_detail: str = "{}" # JSON string or descriptive text
+    reaction_detail: str = "{}" 
+    issue_id: Optional[int] = None
 
     def to_dict(self):
         return {
@@ -23,5 +24,6 @@ class NewsItem:
             "full_content": self.full_content,
             "comment_count": self.comment_count,
             "reaction_count": self.reaction_count,
-            "reaction_detail": self.reaction_detail
+            "reaction_detail": self.reaction_detail,
+            "issue_id": self.issue_id
         }
