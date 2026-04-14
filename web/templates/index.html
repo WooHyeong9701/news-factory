@@ -136,11 +136,8 @@
                 <button type="submit" class="btn btn-primary">인스타그램 업로드</button>
             </form>
 
-            <!-- 피드 삭제 버튼 -->
-            <form action="/delete" method="post" style="margin-top:8px;" onsubmit="return confirm('이 후보 뉴스를 목록에서 삭제할까요?');">
-                <input type="hidden" name="issue_id" value="{{ issue.id }}">
-                <button type="submit" class="btn btn-danger-outline">🔥 후보 삭제 (매력 없음)</button>
-            </form>
+            <!-- 피드 삭제 버튼 (AJAX 방식) -->
+            <button type="button" class="btn btn-danger-outline" onclick="deleteIssue({{ issue.id }}, this)">🔥 후보 삭제 (매력 없음)</button>
         </div>
         {% endfor %}
         {% if not issues %}<p style="text-align:center; color:var(--text-dim);">대기 중인 이슈가 없습니다.</p>{% endif %}
@@ -157,11 +154,8 @@
                     <div style="font-size:0.75rem; color:var(--text-dim);">게시일: {{ story.first_seen_at }}</div>
                 </div>
             </div>
-            <!-- 게시물 삭제 버튼 -->
-            <form action="/delete" method="post" style="margin-top:12px;" onsubmit="return confirm('이 게시물을 기록에서 완전히 삭제할까요?');">
-                <input type="hidden" name="issue_id" value="{{ story.id }}">
-                <button type="submit" class="btn btn-danger-outline" style="padding: 8px;">🗑️ 기록에서 삭제</button>
-            </form>
+            <!-- 게시물 삭제 버튼 (AJAX 방식) -->
+            <button type="button" class="btn btn-danger-outline" style="padding: 8px;" onclick="deleteIssue({{ story.id }}, this)">🗑️ 기록에서 삭제</button>
         </div>
         {% endfor %}
         {% if not published %}<p style="text-align:center; color:var(--text-dim);">아직 게시된 글이 없습니다.</p>{% endif %}
@@ -173,6 +167,33 @@
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             event.currentTarget.classList.add('active');
+        }
+
+        async function deleteIssue(issueId, btnElement) {
+            // 1. 화면에서 즉시 숨기기 (사용자 경험 향상)
+            const card = btnElement.closest('.issue-card');
+            card.style.transition = '0.3s';
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.9)';
+            
+            setTimeout(() => card.style.display = 'none', 300);
+
+            // 2. 서버에 삭제 요청 (AJAX)
+            try {
+                const formData = new FormData();
+                formData.append('issue_id', issueId);
+                
+                await fetch('/delete', {
+                    method: 'POST',
+                    body: formData
+                });
+            } catch (error) {
+                console.error('삭제 중 오류 발생:', error);
+                alert('삭제에 실패했습니다. 다시 시도해 주세요.');
+                card.style.display = 'block';
+                card.style.opacity = '1';
+                card.style.transform = 'scale(1)';
+            }
         }
     </script>
 </body>

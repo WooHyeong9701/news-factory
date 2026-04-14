@@ -94,10 +94,10 @@ async def select_issue(request: Request, issue_id: int = Form(...), selected_tit
 
     return await read_index(request, msg=msg)
 
-@app.post("/delete", response_class=HTMLResponse)
-async def delete_issue_route(request: Request, issue_id: int = Form(...)):
+@app.post("/delete")
+async def delete_issue_route(issue_id: int = Form(...)):
     db.delete_issue(issue_id)
-    return await read_index(request, msg=f"🗑️ 광속 삭제! 이슈 #{issue_id}와 모든 기록이 제거되었습니다.")
+    return {"status": "success", "message": f"Issue {issue_id} deleted"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
