@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  news-factory:
+    build: .
+    container_name: news-factory-app
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - IG_ACCESS_TOKEN=${IG_ACCESS_TOKEN}
+      - IG_USER_ID=${IG_USER_ID}
+    volumes:
+      - ./news.db:/app/news.db # DB 파일을 호스트와 동기화하여 서버 재시작 시에도 데이터 유지
