@@ -11,6 +11,10 @@ import json
 import uvicorn
 import os
 import requests
+from dotenv import load_dotenv
+
+# 로컬 .env 파일의 환경변수를 불러옵니다.
+load_dotenv()
 
 app = FastAPI()
 db = NewsDatabase()
