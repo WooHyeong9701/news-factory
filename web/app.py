@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request, Form
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from database.sqlite_db import NewsDatabase
@@ -17,6 +18,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="web/static"), name="static")
 db = NewsDatabase()
 publisher = InstagramPublisher()
 notifier = TelegramNotifier()
