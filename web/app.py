@@ -99,28 +99,32 @@ async def read_index(request: Request, msg: str = None):
         "msg": msg
     })
 
+@app.post("/review_images", response_class=HTMLResponse)
+async def review_images(request: Request, issue_id: int = Form(...), final_title: str = Form(...)):
+    """게시 전 이미지를 생성하고 사용자가 선택할 수 있게 합니다."""
+    print(f"🎨 리뷰용 이미지 생성 시작: {final_title}")
+    # 요청하신 대로 3장의 후보를 생성합니다.
+    images = image_gen.generate_news_images(final_title, count=3)
+    
+    return templates.TemplateResponse("review.html", {
+        "request": request,
+        "issue_id": issue_id,
+        "title": final_title,
+        "images": images
+    })
+
 @app.post("/select", response_class=HTMLResponse)
 async def select_issue(request: Request, issue_id: int = Form(...), selected_title: str = Form(...), selected_image: str = Form(...)):
-    # [변경] 발행 버튼을 눌렀을 때 실시간으로 이미지를 생성합니다.
-    print(f"🎨 실시간 이미지 생성 시작: {selected_title}")
-    new_images = image_gen.generate_news_images(selected_title, count=1)
-    
-    final_image = selected_image
-    if new_images and len(new_images) > 0:
-        final_image = new_images[0]
-        print(f"✅ 이미지 생성 완료: {final_image}")
-    else:
-        print("⚠️ 이미지 생성 실패, 기본 플레이스홀더를 사용합니다.")
-
+    """리뷰 페이지에서 선택한 최종 이미지와 제목으로 업로드를 완료합니다."""
     issue = db.get_issue_by_id(issue_id)
     caption = f"{selected_title}\n\n{issue['summary_candidate']}"
     
-    # 생성된 이미지로 발행
-    success = publisher.publish_post(final_image, caption)
+    # [변경] 이미지는 이전 단계에서 생성되었으므로, 선택된 것을 그대로 사용합니다.
+    success = publisher.publish_post(selected_image, caption)
     
     if success:
-        db.mark_issue_published(issue_id, selected_title, final_image)
-        msg = f"🚀 이슈 #{issue_id}가 인스타그램에 업로드되었습니다!"
+        db.mark_issue_published(issue_id, selected_title, selected_image)
+        msg = f"🚀 '{selected_title}' 게시물이 인스타그램에 성공적으로 공유되었습니다!"
     else:
         msg = f"❌ 인스타그램 업로드 중 오류가 발생했습니다."
 
