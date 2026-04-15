@@ -6,6 +6,7 @@ from database.sqlite_db import NewsDatabase
 from social.instagram import InstagramPublisher
 from notification.telegram import TelegramNotifier
 from processor.fact_checker import FactChecker
+from processor.generator import ContentGenerator
 from apscheduler.schedulers.background import BackgroundScheduler
 from main import main as crawl_job
 import json
@@ -23,7 +24,21 @@ db = NewsDatabase()
 publisher = InstagramPublisher()
 notifier = TelegramNotifier()
 fact_checker = FactChecker()
+generator = ContentGenerator()
 templates = Jinja2Templates(directory="web/templates")
+
+@app.get("/regenerate_title")
+async def regenerate_title(issue_id: int):
+    """제목이 마음에 들지 않을 때 AI에게 다시 생성을 요청합니다."""
+    issue = db.get_issue_by_id(issue_id)
+    if not issue:
+        return {"status": "error", "message": "Issue not found"}
+    
+    # AI를 통해 새로운 제목 생성
+    result = generator.generate_instagram_content(issue['representative_title'], issue['summary_candidate'])
+    new_title = result.get("titles", [issue['representative_title']])[0]
+    
+    return {"status": "success", "title": new_title}
 
 def monitor_published_issues():
     """Scheduled task to check for fake news reports on published issues."""

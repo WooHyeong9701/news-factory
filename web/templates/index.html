@@ -126,13 +126,19 @@
                     {% endfor %}
                 </div>
                 <div class="summary-box">{{ issue.summary_candidate }}</div>
-                <div style="display:flex; flex-direction:column; gap:8px;">
-                    {% for t in issue.titles %}
-                    <label style="font-size:0.85rem; padding:10px; background:rgba(255,255,255,0.03); border-radius:6px; cursor:pointer;">
-                        <input type="radio" name="selected_title" value="{{ t }}" required style="margin-right:8px;">{{ t }}
-                    </label>
-                    {% endfor %}
+                
+                <!-- 단일 제목 및 직접 수정 영역 -->
+                <div style="margin-bottom: 15px;">
+                    <label style="font-size: 0.8rem; color: var(--text-dim); display: block; margin-bottom: 5px;">📍 제목 수정 및 발행</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" name="selected_title" value="{{ issue.titles[0] if issue.titles else issue.representative_title }}" 
+                               id="title-{{ issue.id }}"
+                               style="flex: 1; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text); font-size: 0.9rem;">
+                        <button type="button" class="btn btn-secondary" style="width: auto; margin-top: 0; padding: 0 15px; font-size: 0.8rem; background: #475569;" 
+                                onclick="regenerateTitle({{ issue.id }})">♻️ 다시 쓰기</button>
+                    </div>
                 </div>
+
                 <button type="submit" class="btn btn-primary">인스타그램 업로드</button>
             </form>
 
@@ -167,6 +173,31 @@
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             event.currentTarget.classList.add('active');
+        }
+
+        async function regenerateTitle(issueId) {
+            const input = document.getElementById(`title-${issueId}`);
+            const originalValue = input.value;
+            input.value = "AI가 새로운 제목을 생각 중입니다...";
+            input.disabled = true;
+
+            try {
+                const response = await fetch(`/regenerate_title?issue_id=${issueId}`);
+                const data = await response.json();
+                
+                if (data.status === "success") {
+                    input.value = data.title;
+                } else {
+                    alert("제목 생성 실패: " + data.message);
+                    input.value = originalValue;
+                }
+            } catch (error) {
+                console.error("오류:", error);
+                alert("서버 통신 오류가 발생했습니다.");
+                input.value = originalValue;
+            } finally {
+                input.disabled = false;
+            }
         }
 
         async function deleteIssue(issueId, btnElement) {
