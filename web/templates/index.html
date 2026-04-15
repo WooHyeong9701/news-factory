@@ -130,16 +130,16 @@
                 <!-- 단일 제목 및 직접 수정 영역 -->
                 <div style="margin-bottom: 15px;">
                     <label style="font-size: 0.8rem; color: var(--text-dim); display: block; margin-bottom: 5px;">📍 제목 수정 및 발행</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" name="selected_title" value="{{ issue.titles[0] if issue.titles else issue.representative_title }}" 
-                               id="title-{{ issue.id }}"
-                               style="flex: 1; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text); font-size: 0.9rem;">
-                        <button type="button" class="btn btn-secondary" style="width: auto; margin-top: 0; padding: 0 15px; font-size: 0.8rem; background: #475569;" 
-                                onclick="regenerateTitle({{ issue.id }})">♻️ 다시 쓰기</button>
-                    </div>
+                    <input type="text" name="selected_title" value="{{ issue.titles[0] if issue.titles else issue.representative_title }}" 
+                           id="title-{{ issue.id }}"
+                           style="width: 100%; box-sizing: border-box; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text); font-size: 0.9rem; margin-bottom: 10px;">
+                    
+                    <button type="button" class="btn btn-secondary" 
+                            style="background: #475569; margin-bottom: 8px; padding: 8px;" 
+                            onclick="regenerateTitle({{ issue.id }})">♻️ AI 제목 다시 쓰기</button>
+                    
+                    <button type="submit" class="btn btn-primary">인스타그램 업로드</button>
                 </div>
-
-                <button type="submit" class="btn btn-primary">인스타그램 업로드</button>
             </form>
 
             <!-- 피드 삭제 버튼 (AJAX 방식) -->
