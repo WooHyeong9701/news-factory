@@ -3,227 +3,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>News Factory | Dashboard</title>
+    <title>News Factory | Admin</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0f172a;
-            --card: #1e293b;
-            --accent: #38bdf8;
-            --danger: #ef4444;
-            --success: #22c55e;
-            --text: #f1f5f9;
-            --text-dim: #94a3b8;
+            --bg-base: #000000;
+            --bg-secondary: #121212;
+            --bg-elevated: #262626;
+            --border: #363636;
+            --text-primary: #ffffff;
+            --text-secondary: #a8a8a8;
+            --insta-blue: #0095f6;
+            --insta-red: #ed4956;
+            --insta-grey: #8e8e8e;
         }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
             font-family: 'Inter', -apple-system, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            background-color: var(--bg-base);
+            color: var(--text-primary);
             margin: 0;
-            padding: 10px;
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
         }
-        header {
+
+        /* Nav Bar 스타일 */
+        nav {
+            position: sticky;
+            top: 0;
             width: 100%;
-            max-width: 600px;
-            margin: 20px 0;
-            text-align: center;
-        }
-        h1 { font-size: 1.5rem; color: var(--accent); margin-bottom: 5px; }
-        .tab-container {
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
             display: flex;
+            justify-content: center;
+            height: 60px;
+        }
+        .nav-content {
             width: 100%;
             max-width: 600px;
-            background: var(--card);
-            border-radius: 12px;
-            margin-bottom: 20px;
-            padding: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        .logo { font-size: 1.3rem; font-weight: 700; letter-spacing: -1px; }
+
+        /* 탭 스타일 */
+        .tab-bar {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            border-bottom: 1px solid var(--border);
         }
         .tab {
             flex: 1;
-            padding: 10px;
+            padding: 15px 0;
             text-align: center;
-            cursor: pointer;
-            border-radius: 8px;
+            font-size: 0.75rem;
             font-weight: 600;
-            font-size: 0.9rem;
-            transition: 0.2s;
+            color: var(--text-secondary);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: color 0.3s;
         }
-        .tab.active { background: var(--accent); color: var(--bg); }
-
-        .section { width: 100%; max-width: 600px; display: none; }
-        .section.active { display: block; }
-
-        .issue-card {
-            background-color: var(--card);
-            border-radius: 16px;
-            padding: 18px;
-            margin-bottom: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            position: relative;
+        .tab.active {
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--text-primary);
         }
-        .issue-title { font-size: 1rem; font-weight: 600; margin-bottom: 12px; color: var(--text); }
+
+        .main-container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px 0;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.4s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 인스타그램 카드 스타일 */
+        .insta-card {
+            background-color: var(--bg-base);
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+        }
+        .avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            margin-right: 12px; padding: 2px;
+        }
+        .avatar-inner { width: 100%; height: 100%; border-radius: 50%; background: var(--bg-base); border: 2px solid var(--bg-base); }
+        .card-user { font-size: 0.85rem; font-weight: 600; }
+
+        /* 이미지 컨테이너 */
+        .card-media {
+            width: 100%; aspect-ratio: 1; background-color: var(--bg-secondary);
+            overflow: hidden; cursor: pointer;
+        }
+        .card-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+        .card-media:hover img { transform: scale(1.03); }
+
+        /* 카드 내용 */
+        .card-body { padding: 12px 16px; }
+        .card-actions { display: flex; gap: 16px; margin-bottom: 12px; font-size: 1.5rem; }
         
-        /* 이미지 선택 그리드 */
-        .image-selector {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px;
-        }
-        .image-option {
-            aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 2px solid transparent; cursor: pointer; position: relative;
-        }
-        .image-option img { width: 100%; height: 100%; object-fit: cover; }
-        .image-option input { position: absolute; opacity: 0; }
-        .image-option:has(input:checked) { border-color: var(--accent); }
-
-        .summary-box {
-            background: rgba(0,0,0,0.2); border-radius: 8px; padding: 12px; font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 15px;
-        }
-
-        .btn {
-            border: none; border-radius: 8px; padding: 12px; font-weight: 600; cursor: pointer; width: 100%; font-size: 0.9rem; margin-top: 10px;
-        }
-        .btn-primary { background: var(--accent); color: var(--bg); }
-        .btn-danger-outline { background: transparent; border: 1px solid var(--danger); color: var(--danger); }
+        .card-summary { font-size: 0.85rem; line-height: 1.5; color: var(--text-primary); margin-bottom: 12px; }
         
-        .alert {
-            width: 100%; max-width: 600px; padding: 12px; background: var(--success); color: var(--bg); border-radius: 8px; margin-bottom: 15px; text-align: center; font-weight: 600;
+        /* 제목 입력창 - 인스타 댓글창 느낌 */
+        .title-input-wrapper {
+            background-color: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 10px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+        .title-input {
+            background: transparent; border: none; color: white; flex: 1; font-size: 0.9rem; outline: none;
+        }
+        .btn-text-action {
+            background: transparent; border: none; color: var(--insta-blue); font-weight: 600; font-size: 0.85rem; cursor: pointer; margin-left: 10px;
         }
 
-        .history-item { display: flex; gap: 12px; align-items: start; }
-        .history-thumb { width: 60px; height: 60px; border-radius: 6px; object-fit: cover; }
+        /* 메인 발행 버튼 */
+        .btn-publish {
+            background-color: var(--insta-blue); color: white; border: none; border-radius: 8px;
+            width: 100%; padding: 10px; font-weight: 600; cursor: pointer; font-size: 0.9rem;
+            transition: opacity 0.2s;
+        }
+        .btn-publish:active { opacity: 0.7; }
+        
+        .btn-discard {
+            background: transparent; color: var(--insta-red); border: none; width: 100%; padding: 10px;
+            font-size: 0.75rem; font-weight: 600; cursor: pointer; margin-top: 5px;
+        }
+
+        /* 알림창 */
+        .toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--bg-elevated); color: white; padding: 12px 24px; border-radius: 4px; border: 1px solid var(--border);
+            font-size: 0.85rem; z-index: 2000; animation: slideUp 0.3s forwards;
+        }
+        @keyframes slideUp { from { bottom: -50px; } to { bottom: 20px; } }
+
+        /* 히스토리 아이템 */
+        .history-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+        .history-p { aspect-ratio: 1; background: var(--bg-secondary); position: relative; cursor: pointer; }
+        .history-p img { width: 100%; height: 100%; object-fit: cover; }
+        .history-p:hover::after { content: '🗑️'; position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+
     </style>
 </head>
 <body>
-    <header>
-        <h1>🚀 News Factory</h1>
-        <p style="font-size: 0.8rem; color: var(--text-dim);">AI 자동 뉴스 시스템 관리자</p>
-    </header>
+    <nav>
+        <div class="nav-content">
+            <div class="logo">News Factory</div>
+            <div style="font-size: 1.2rem;">⚡</div>
+        </div>
+    </nav>
 
-    {% if msg %}
-    <div class="alert">{{ msg }}</div>
-    {% endif %}
-
-    <div class="tab-container">
-        <div class="tab active" onclick="showSection('review')">검토 대기 ({{ issues|length }})</div>
-        <div class="tab" onclick="showSection('history')">나의 게시물 ({{ published|length }})</div>
+    <div class="tab-bar">
+        <div class="tab active" onclick="showSection('review', this)">Review</div>
+        <div class="tab" onclick="showSection('history', this)">Library</div>
     </div>
 
-    <!-- 검토 섹션 -->
-    <div id="review" class="section active">
-        {% for issue in issues %}
-        <div class="issue-card">
-            <div class="issue-title">{{ issue.representative_title }}</div>
-            
-            <form action="/select" method="post">
-                <input type="hidden" name="issue_id" value="{{ issue.id }}">
-                <div class="image-selector">
-                    {% for img in issue.images %}
-                    <label class="image-option">
-                        <input type="radio" name="selected_image" value="{{ img }}" required>
-                        <img src="{{ img }}">
-                    </label>
-                    {% endfor %}
+    <div class="main-container">
+        {% if msg %}
+        <div class="toast" id="toast">{{ msg }}</div>
+        {% endif %}
+
+        <!-- 검토 섹션 -->
+        <div id="review" class="section active">
+            {% for issue in issues %}
+            <article class="insta-card" id="card-{{ issue.id }}">
+                <div class="card-header">
+                    <div class="avatar"><div class="avatar-inner"></div></div>
+                    <div class="card-user">Reporter AI <span style="color:var(--text-secondary); font-weight:400;">• Suggested Now</span></div>
                 </div>
-                <div class="summary-box">{{ issue.summary_candidate }}</div>
                 
-                <!-- 단일 제목 및 직접 수정 영역 -->
-                <div style="margin-bottom: 15px;">
-                    <label style="font-size: 0.8rem; color: var(--text-dim); display: block; margin-bottom: 5px;">📍 제목 수정 및 발행</label>
-                    <input type="text" name="selected_title" value="{{ issue.titles[0] if issue.titles else issue.representative_title }}" 
-                           id="title-{{ issue.id }}"
-                           style="width: 100%; box-sizing: border-box; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text); font-size: 0.9rem; margin-bottom: 10px;">
-                    
-                    <button type="button" class="btn btn-secondary" 
-                            style="background: #475569; margin-bottom: 8px; padding: 8px;" 
-                            onclick="regenerateTitle({{ issue.id }})">♻️ AI 제목 다시 쓰기</button>
-                    
-                    <button type="submit" class="btn btn-primary">인스타그램 업로드</button>
+                <div class="card-media">
+                    <img src="{{ issue.images[0] }}" id="media-{{ issue.id }}">
                 </div>
-            </form>
 
-            <!-- 피드 삭제 버튼 (AJAX 방식) -->
-            <button type="button" class="btn btn-danger-outline" onclick="deleteIssue({{ issue.id }}, this)">🔥 후보 삭제 (매력 없음)</button>
+                <div class="card-body">
+                    <div class="card-actions">
+                        <span>❤️</span> <span>💬</span> <span>✈️</span>
+                    </div>
+                    <div class="card-summary">
+                        <strong>News summary</strong> {{ issue.summary_candidate[:150] }}...
+                    </div>
+
+                    <form action="/select" method="post">
+                        <input type="hidden" name="issue_id" value="{{ issue.id }}">
+                        <input type="hidden" name="selected_image" value="{{ issue.images[0] }}">
+                        
+                        <div class="title-input-wrapper">
+                            <input type="text" name="selected_title" 
+                                   value="{{ issue.titles[0] if issue.titles else issue.representative_title }}" 
+                                   id="title-{{ issue.id }}" class="title-input" placeholder="Make a serious title...">
+                            <button type="button" class="btn-text-action" onclick="regenerateTitle({{ issue.id }})">Regen</button>
+                        </div>
+
+                        <button type="submit" class="btn-publish">Share on Instagram</button>
+                    </form>
+                    
+                    <button type="button" class="btn-discard" onclick="deleteIssue({{ issue.id }}, this)">Discard this issue</button>
+                </div>
+            </article>
+            {% endfor %}
+            {% if not issues %}<div style="text-align:center; padding-top:40px; color:var(--text-dim);">No new issues to review</div>{% endif %}
         </div>
-        {% endfor %}
-        {% if not issues %}<p style="text-align:center; color:var(--text-dim);">대기 중인 이슈가 없습니다.</p>{% endif %}
-    </div>
 
-    <!-- 히스토리 섹션 -->
-    <div id="history" class="section">
-        {% for story in published %}
-        <div class="issue-card">
-            <div class="history-item">
-                <img src="{{ story.selected_image }}" class="history-thumb">
-                <div style="flex:1;">
-                    <div class="issue-title" style="margin-bottom:4px;">{{ story.selected_title }}</div>
-                    <div style="font-size:0.75rem; color:var(--text-dim);">게시일: {{ story.first_seen_at }}</div>
+        <!-- 보관함 섹션 (그리드 방식) -->
+        <div id="history" class="section">
+            <div class="history-grid">
+                {% for story in published %}
+                <div class="history-p" onclick="deleteIssue({{ story.id }}, this)">
+                    <img src="{{ story.selected_image }}">
                 </div>
+                {% endfor %}
             </div>
-            <!-- 게시물 삭제 버튼 (AJAX 방식) -->
-            <button type="button" class="btn btn-danger-outline" style="padding: 8px;" onclick="deleteIssue({{ story.id }}, this)">🗑️ 기록에서 삭제</button>
+            {% if not published %}<div style="text-align:center; padding-top:40px; color:var(--text-dim);">Your story is empty</div>{% endif %}
         </div>
-        {% endfor %}
-        {% if not published %}<p style="text-align:center; color:var(--text-dim);">아직 게시된 글이 없습니다.</p>{% endif %}
     </div>
 
     <script>
-        function showSection(id) {
+        // 탭 전환
+        function showSection(id, tabEl) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            event.currentTarget.classList.add('active');
+            tabEl.classList.add('active');
+            window.scrollTo(0, 0);
         }
 
+        // 토스트 메시지 자동 삭제
+        document.addEventListener('DOMContentLoaded', () => {
+            const toast = document.getElementById('toast');
+            if (toast) setTimeout(() => toast.style.display = 'none', 3000);
+        });
+
+        // 제목 다시 생성
         async function regenerateTitle(issueId) {
             const input = document.getElementById(`title-${issueId}`);
-            const originalValue = input.value;
-            input.value = "AI가 새로운 제목을 생각 중입니다...";
-            input.disabled = true;
+            const btn = event.currentTarget;
+            input.placeholder = "Thinking...";
+            btn.style.opacity = '0.5';
 
             try {
                 const response = await fetch(`/regenerate_title?issue_id=${issueId}`);
                 const data = await response.json();
-                
-                if (data.status === "success") {
-                    input.value = data.title;
-                } else {
-                    alert("제목 생성 실패: " + data.message);
-                    input.value = originalValue;
-                }
+                if (data.status === "success") input.value = data.title;
             } catch (error) {
-                console.error("오류:", error);
-                alert("서버 통신 오류가 발생했습니다.");
-                input.value = originalValue;
+                console.error("Error:", error);
             } finally {
-                input.disabled = false;
+                btn.style.opacity = '1';
+                input.placeholder = "Make a serious title...";
             }
         }
 
-        async function deleteIssue(issueId, btnElement) {
-            // 1. 화면에서 즉시 숨기기 (사용자 경험 향상)
-            const card = btnElement.closest('.issue-card');
-            card.style.transition = '0.3s';
-            card.style.opacity = '0';
-            card.style.transform = 'scale(0.9)';
-            
-            setTimeout(() => card.style.display = 'none', 300);
+        // 이슈 삭제 (AJAX)
+        async function deleteIssue(issueId, element) {
+            if (confirm('Discard this post?')) {
+                const target = element.closest('.insta-card') || element.closest('.history-p');
+                target.style.transition = '0.3s';
+                target.style.opacity = '0';
+                setTimeout(() => target.style.display = 'none', 300);
 
-            // 2. 서버에 삭제 요청 (AJAX)
-            try {
-                const formData = new FormData();
-                formData.append('issue_id', issueId);
-                
-                await fetch('/delete', {
-                    method: 'POST',
-                    body: formData
-                });
-            } catch (error) {
-                console.error('삭제 중 오류 발생:', error);
-                alert('삭제에 실패했습니다. 다시 시도해 주세요.');
-                card.style.display = 'block';
-                card.style.opacity = '1';
-                card.style.transform = 'scale(1)';
+                try {
+                    const formData = new FormData();
+                    formData.append('issue_id', issueId);
+                    await fetch('/delete', { method: 'POST', body: formData });
+                } catch (error) {
+                    console.error('Delete error:', error);
+                }
             }
         }
     </script>
