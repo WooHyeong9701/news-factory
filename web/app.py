@@ -7,6 +7,7 @@ from social.instagram import InstagramPublisher
 from notification.telegram import TelegramNotifier
 from processor.fact_checker import FactChecker
 from processor.generator import ContentGenerator
+from processor.image_gen import ImageGenerator
 from apscheduler.schedulers.background import BackgroundScheduler
 from main import main as crawl_job
 import json
@@ -25,6 +26,7 @@ publisher = InstagramPublisher()
 notifier = TelegramNotifier()
 fact_checker = FactChecker()
 generator = ContentGenerator()
+image_gen = ImageGenerator()
 templates = Jinja2Templates(directory="web/templates")
 
 @app.get("/regenerate_title")
@@ -99,12 +101,25 @@ async def read_index(request: Request, msg: str = None):
 
 @app.post("/select", response_class=HTMLResponse)
 async def select_issue(request: Request, issue_id: int = Form(...), selected_title: str = Form(...), selected_image: str = Form(...)):
+    # [변경] 발행 버튼을 눌렀을 때 실시간으로 이미지를 생성합니다.
+    print(f"🎨 실시간 이미지 생성 시작: {selected_title}")
+    new_images = image_gen.generate_news_images(selected_title, count=1)
+    
+    final_image = selected_image
+    if new_images and len(new_images) > 0:
+        final_image = new_images[0]
+        print(f"✅ 이미지 생성 완료: {final_image}")
+    else:
+        print("⚠️ 이미지 생성 실패, 기본 플레이스홀더를 사용합니다.")
+
     issue = db.get_issue_by_id(issue_id)
     caption = f"{selected_title}\n\n{issue['summary_candidate']}"
-    success = publisher.publish_post(selected_image, caption)
+    
+    # 생성된 이미지로 발행
+    success = publisher.publish_post(final_image, caption)
     
     if success:
-        db.mark_issue_published(issue_id, selected_title, selected_image)
+        db.mark_issue_published(issue_id, selected_title, final_image)
         msg = f"🚀 이슈 #{issue_id}가 인스타그램에 업로드되었습니다!"
     else:
         msg = f"❌ 인스타그램 업로드 중 오류가 발생했습니다."

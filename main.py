@@ -63,13 +63,13 @@ def main():
     for i, issue in enumerate(top_issues[:3]):
         # Generate IG candidates
         content = generator.generate_instagram_content(issue['representative_title'], issue['representative_title'])
-        images = image_gen.generate_news_images(issue['representative_title'], count=3)
+        images = [] # 이미지는 발행 시 실시간 생성합니다.
         
         # Save to DB
         db.update_issue_candidates(issue['id'], content['summary'], content['titles'], images)
         
         print(f"{i+1}. {issue['representative_title']}")
-        print(f"   Score: {issue['score']} | Content & Images Generated ✅")
+        print(f"   Score: {issue['score']} | Content Generated ✅")
         
         # 5. Telegram Notification (Optional: for the top issue only)
         if i == 0 and issue['score'] >= 1.2: # Threshold for alert

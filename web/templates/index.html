@@ -201,7 +201,11 @@
                 </div>
                 
                 <div class="card-media">
+                    {% if issue.images and issue.images|length > 0 %}
                     <img src="{{ issue.images[0] }}" id="media-{{ issue.id }}">
+                    {% else %}
+                    <img src="https://picsum.photos/600/600" id="media-{{ issue.id }}">
+                    {% endif %}
                 </div>
 
                 <div class="card-body">
@@ -209,12 +213,12 @@
                         <span>❤️</span> <span>💬</span> <span>✈️</span>
                     </div>
                     <div class="card-summary">
-                        <strong>News summary</strong> {{ issue.summary_candidate[:150] }}...
+                        <strong>News summary</strong> {{ issue.summary_candidate[:150] if issue.summary_candidate else "상세 내용이 없습니다." }}...
                     </div>
 
                     <form action="/select" method="post">
                         <input type="hidden" name="issue_id" value="{{ issue.id }}">
-                        <input type="hidden" name="selected_image" value="{{ issue.images[0] }}">
+                        <input type="hidden" name="selected_image" value="{{ issue.images[0] if issue.images else 'https://picsum.photos/600/600' }}">
                         
                         <div class="title-input-wrapper">
                             <input type="text" name="selected_title" 
